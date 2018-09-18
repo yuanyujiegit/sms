@@ -1,0 +1,6 @@
+{
+  "/whaleMarketMgr":{
+    "target":"http://10.81.25.44:8080",
+    "secure": false
+  }
+}

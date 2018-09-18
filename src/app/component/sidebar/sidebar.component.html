@@ -1,0 +1,34 @@
+<div class="sidebar">
+    <div class="sidebar-admin">
+        <div class="admin-img"></div>
+        <div class="admin-text">
+            <div class="text1">admin</div>
+            <div class="text2">欢迎登陆!</div>
+        </div>
+    </div>
+    <div class="sidebar-container">
+        <ul nz-menu [nzMode]="'inline'" style="width: 240px;">
+            <li nz-submenu [(nzOpen)]="openMap.org" (nzOpenChange)="openHandler('org')">
+                <span title class="title"><i class="anticon anticon-profile"></i> 机构管理</span>
+                <ul>
+                    <li nz-menu-item>机构管理</li>
+                </ul>
+            </li>
+            <li nz-submenu [(nzOpen)]="openMap.vendor" (nzOpenChange)="openHandler('vendor')">
+                <span title class="title"><i class="anticon anticon-profile"></i> 产品管理</span>
+                <ul>
+                    <li nz-menu-item>产品管理</li>
+                </ul>
+            </li>
+            <li nz-submenu [(nzOpen)]="openMap.task" (nzOpenChange)="openHandler('task')">
+                <span title class="title"><i class="anticon anticon-profile"></i> 任务管理</span>
+                <ul>
+                    <li nz-menu-item>新增任务</li>
+                    <li nz-menu-item>任务首页</li>
+                    <li nz-menu-item>后台管理</li>
+                    <li nz-menu-item>发送短信</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>

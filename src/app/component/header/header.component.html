@@ -1,0 +1,10 @@
+<div class="header">
+    <h1 class="logo"><img src="../../../assets/images/whale.png" alt=""></h1>
+    <div class="operator" *ngIf="path !== '/login'">
+        <ul>
+            <li>首页</li>
+            <li (click)="out()">退出</li>
+            <li *ngIf="false">登录</li>
+        </ul>
+    </div>
+</div>

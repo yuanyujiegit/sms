@@ -1,35 +1,25 @@
 import {Injectable} from '@angular/core';
-import {HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {catchError, retry} from 'rxjs/internal/operators';
+import {HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {merge, Observable, of} from 'rxjs';
+import {catchError, mergeMap } from 'rxjs/internal/operators';
 import { throwError } from 'rxjs';
 import { LocalStorageService } from 'angular-2-local-storage';
+import { Router } from '@angular/router';
 
 /**
  * name: 拦截器
  * author: shandian
  * date: 2018/8/28
  * 参考文档：https://www.angular.cn/guide/http#intercepting-requests-and-responses
+ * error: https://stackoverflow.com/questions/47869196/angular-4-http-request-error-you-provided-undefined-where-a-stream-was-expe
  * */
 @Injectable()
 export class NoopInterceptor implements HttpInterceptor {
-
-  static handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
-    } else {
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.error}`);
-    }
-    return throwError(
-      'Something bad happened; please try again later.'
-    );
-  }
-
-  constructor(private localStorageService: LocalStorageService) {
-
-  }
+  
+  constructor(
+    private localStorageService: LocalStorageService,
+    private router: Router
+  ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
@@ -47,12 +37,69 @@ export class NoopInterceptor implements HttpInterceptor {
       setHeaders: headersConfig
     });
 
-    return next.handle(customerRequest).pipe(
-      retry(1),       /*失败时重试1次*/
-      catchError(NoopInterceptor.handleError)
+    return next.handle(customerRequest)
+      .pipe(
+        mergeMap((event: any) => {
+          if (event instanceof HttpResponse && event.status === 200) {
+            // return ErrorObservable.create(event);
+            return this.handleData(event);
+            // return of(event);
+          }
+          //   return Observable.create(observer => observer.next(event)); // 请求成功返回响应
+          }),
+          catchError(this.handleError)
+        // catchError((err: HttpErrorResponse) => this.handleError)
     );
 
   }
 
-
+  // private handleData(event: HttpResponse<any> | HttpErrorResponse): Observable<any> {
+  //   // 业务处理：一些通用操作
+  //   switch (event.status) {
+  //     // case 200:
+  //     //   if (event && event.data && event.data.code === 42103) {
+  //     //
+  //     //   }
+  //     //   break;
+  //     case 401: // 未登录状态码
+  //       this.localStorageService.clearAll();
+  //       this.router.navigateByUrl('/login');
+  //       break;
+  //     default:
+  //       return of(event);
+  //   }
+  // }
+  
+  private handleData(event: HttpResponse<any> | HttpErrorResponse): Observable<any> {
+    // 业务处理：一些通用操作
+    switch (event.status) {
+      case 200:
+        if (event instanceof HttpResponse) {
+          const body: any = event.body;
+          if (body && body.data.code === 42103) {
+            this.router.navigateByUrl('/login');
+          }
+        }
+        break;
+      case 401: // 未登录状态码
+        this.router.navigateByUrl('/login');
+        break;
+      default:
+        return of(event);
+    }
+  }
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error('An error occurred:', error.error.message);
+    } else {
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        `body was: ${error}`);
+    }
+    return throwError(
+      'Something bad happened; please try again later.'
+    );
+  }
+  
+  
 }
