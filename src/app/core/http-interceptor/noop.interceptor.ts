@@ -1,5 +1,8 @@
 import {Injectable} from '@angular/core';
-import {HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {
+  HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse, HttpResponse,
+  HttpHeaderResponse
+} from '@angular/common/http';
 import {merge, Observable, of} from 'rxjs';
 import {catchError, mergeMap } from 'rxjs/internal/operators';
 import { throwError } from 'rxjs';
@@ -21,54 +24,36 @@ export class NoopInterceptor implements HttpInterceptor {
     private router: Router
   ) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpHeaderResponse | HttpResponse<any>> {
 
     const headersConfig = {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     };
-
+    
     const token = this.localStorageService.get('accessToken');
+  
+    let customerRequest = req.clone({
+      setHeaders: headersConfig,
+    });
+
     if (token) {
-      headersConfig['accessToken'] = token;
+      customerRequest = req.clone({
+        setHeaders: headersConfig,
+        url: (req.url + `&accessToken=${token}`)
+      });
     }
 
-    const customerRequest = req.clone({
-      setHeaders: headersConfig
-    });
+    
 
     return next.handle(customerRequest)
       .pipe(
         mergeMap((event: any) => {
-          if (event instanceof HttpResponse && event.status === 200) {
-            // return ErrorObservable.create(event);
-            return this.handleData(event);
-            // return of(event);
-          }
-          //   return Observable.create(observer => observer.next(event)); // 请求成功返回响应
-          }),
+          return this.handleData(event);
+        }),
           catchError(this.handleError)
-        // catchError((err: HttpErrorResponse) => this.handleError)
     );
-
   }
-
-  // private handleData(event: HttpResponse<any> | HttpErrorResponse): Observable<any> {
-  //   // 业务处理：一些通用操作
-  //   switch (event.status) {
-  //     // case 200:
-  //     //   if (event && event.data && event.data.code === 42103) {
-  //     //
-  //     //   }
-  //     //   break;
-  //     case 401: // 未登录状态码
-  //       this.localStorageService.clearAll();
-  //       this.router.navigateByUrl('/login');
-  //       break;
-  //     default:
-  //       return of(event);
-  //   }
-  // }
   
   private handleData(event: HttpResponse<any> | HttpErrorResponse): Observable<any> {
     // 业务处理：一些通用操作
@@ -87,7 +72,9 @@ export class NoopInterceptor implements HttpInterceptor {
       default:
         return of(event);
     }
+    return of(event);
   }
+  
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
       console.error('An error occurred:', error.error.message);
@@ -100,6 +87,5 @@ export class NoopInterceptor implements HttpInterceptor {
       'Something bad happened; please try again later.'
     );
   }
-  
   
 }

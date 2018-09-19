@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { UtilService } from './util.service';
 import { map , distinctUntilChanged } from 'rxjs/internal/operators';
 import { LoginInterface } from '../interface';
+import {HttpResponse} from '@angular/common/http';
 
 @Injectable()
 export class LoginService {
@@ -22,16 +23,15 @@ export class LoginService {
     this.isAuthenticatedSubject.next(true);
   }
   
-  login(params): Observable<LoginInterface> {
+  login(params): Observable<HttpResponse<LoginInterface>> {
     return this.http.post('whaleMarketMgr/user/login', params)
       .pipe(map(data => {
-         // this.currentLogin.next(data);
         return data;
       }
     ));
   }
   
-  out(params, query) {
+  out(params, query): Observable<HttpResponse<any>> {
     return this.http.post('whaleMarketMgr/user/logout' + query, params)
       .pipe(map(data => {
          // this.currentLogin.next(data);
