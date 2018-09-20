@@ -148,17 +148,17 @@ export class LoginComponent implements OnInit {
       }
     }
     this.validateForm.value.password = this.base.encode(this.validateForm.value.password);
-    this.service.login(this.validateForm.value).subscribe((res) => {
-        if (res.code === 10200) {
-          this.localStorageService.set('accessToken', res.accessToken);
-          this.localStorageService.set('rootUserName', res.data[0].username);
-          this.localStorageService.set('rootUserId', res.data[0].id);
-          this.localStorageService.set('rootRoleName', res.data[0].rolename);
-          this.router.navigateByUrl('container');
-        }
+    this.localStorageService.clearAll();
+    this.service.login(this.validateForm.value).subscribe((resp) => {
+      const res: any = resp;
+      if (res.code === 10200) {
+        this.localStorageService.set('accessToken', res.accessToken);
+        this.localStorageService.set('rootUserName', res.data[0].username);
+        this.localStorageService.set('rootUserId', res.data[0].id);
+        this.localStorageService.set('rootRoleName', res.data[0].rolename);
+        this.router.navigateByUrl('container');
+      }
       }
     );
-
   }
-
 }

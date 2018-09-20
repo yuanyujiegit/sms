@@ -36,22 +36,29 @@ export class NoopInterceptor implements HttpInterceptor {
     let customerRequest = req.clone({
       setHeaders: headersConfig,
     });
+    
+    let url: string;
+    
+    if (req.url.indexOf('?') > -1) {
+      url = req.url + `&accessToken=${token}`;
+    } else {
+      url = req.url + `?accessToken=${token}`;
+    }
 
     if (token) {
       customerRequest = req.clone({
         setHeaders: headersConfig,
-        url: (req.url + `&accessToken=${token}`)
+        url: url
       });
     }
 
-    
-
-    return next.handle(customerRequest)
-      .pipe(
-        mergeMap((event: any) => {
-          return this.handleData(event);
-        }),
-          catchError(this.handleError)
+    return next.handle(customerRequest).pipe( mergeMap((event: any) => {
+      if (event instanceof HttpResponse) {
+        return this.handleData(event);
+      }
+      return of(event);
+    }),
+    catchError((error: HttpErrorResponse) => this.handleData(error))
     );
   }
   
@@ -61,8 +68,10 @@ export class NoopInterceptor implements HttpInterceptor {
       case 200:
         if (event instanceof HttpResponse) {
           const body: any = event.body;
-          if (body && body.data.code === 42103) {
+          if (body && body.code === 42103) {
             this.router.navigateByUrl('/login');
+          } else {
+            return of(event);
           }
         }
         break;
@@ -72,14 +81,13 @@ export class NoopInterceptor implements HttpInterceptor {
       default:
         return of(event);
     }
-    return of(event);
   }
   
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
       console.error('An error occurred:', error.error.message);
     } else {
-      console.error(
+      console.log(
         `Backend returned code ${error.status}, ` +
         `body was: ${error}`);
     }

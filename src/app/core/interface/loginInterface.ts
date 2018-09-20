@@ -1,4 +1,4 @@
-export class LoginInterface {
+export interface LoginInterface {
     accessToken: '';
     code: number;
     data: Array<any>;
@@ -6,4 +6,5 @@ export class LoginInterface {
     success: boolean;
     userid: string;
     username: string;
+    dd: string;
 }

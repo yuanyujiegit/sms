@@ -25,11 +25,10 @@ export class HeaderComponent implements OnInit {
     this.path = this.location.path();
   }
   
-  out() {
+  out(): void {
     const userid = this.localStorageService.get('rootUserId');
-    this.service.out('', '?userid=' + userid).subscribe((res) => {
-      const response: any = res;
-      if (response.code === 10200) {
+    this.service.out('', '?userid=' + userid).subscribe(resp => {
+      if (resp.code === 10200) {
         this.localStorageService.clearAll();
         this.router.navigateByUrl('/login');
       }
