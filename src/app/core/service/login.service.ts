@@ -23,12 +23,12 @@ export class LoginService {
   }
   
   login(params: any): Observable<LoginInterface> {
-    return this.http.post('whaleMarketMgr/user/login', params)
-      .pipe(map(data => data));
+    return this.http.post('whaleMarketMgr/user/login', params);
+      // .pipe(map(data => data));
   }
   
   out(params: any, query: string): Observable<any> {
-    return this.http.post('whaleMarketMgr/user/logout' + query, params)
-      .pipe(map(data => data));
+    return this.http.post('whaleMarketMgr/user/logout' + query, params);
+      // .pipe(map(data => data));
   }
 }

@@ -6,5 +6,4 @@ export interface LoginInterface {
     success: boolean;
     userid: string;
     username: string;
-    dd: string;
 }

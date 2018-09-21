@@ -1,11 +1,20 @@
 <div class="org">
   <div class="org-search clearfix">
     <span class="tit fl">机构:</span>
-    <input class="fl" nz-input placeholder="请输入机构名称">
-    <button class="fl" nz-button nzType="primary">搜索</button>
+    <input class="fl" nz-input placeholder="请输入机构名称" [(ngModel)] = "params.orgname">
+    <button class="fl" nz-button nzType="primary" (click)="getOrgList()">搜索</button>
   </div>
+  <!--table 区域-->
   <div class="org-table">
-    <nz-table #basicTable nzBordered [nzPageSize]="5" [nzData]="dataSet">
+    <nz-table
+      #basicTable
+      nzBordered
+      [nzFrontPagination] = false
+      [nzShowQuickJumper] = true
+      [nzTotal] = total
+      [nzPageIndex] = params.pageFrom
+      [nzData]="orgList"
+      [nzLoading]="loading">
       <thead>
         <tr>
           <th>机构名称</th>
@@ -15,11 +24,13 @@
       </thead>
       <tbody>
         <tr *ngFor="let data of basicTable.data">
-          <td>{{data.name}}</td>
-          <td>{{data.age}}</td>
-          <td>{{data.address}}</td>
+          <td>{{data.orgname}}</td>
+          <td>{{data.concat || '-'}}</td>
+          <td class="last"><!--<span>修改</span> --><span>删除</span></td>
         </tr>
         </tbody>
     </nz-table>
   </div>
+
+
 </div>

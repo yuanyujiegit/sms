@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { OrgService } from '../../core/service/org.service';
+import { OrgInterface } from '../../core/interface/orgInterface';
 
 @Component({
   selector: 'app-org',
@@ -9,87 +10,10 @@ import { OrgService } from '../../core/service/org.service';
 })
 export class OrgComponent implements OnInit {
   
-  dataSet = [
-    {
-      key    : '1',
-      name   : 'John Brown',
-      age    : 32,
-      address: 'New York No. 1 Lake Park'
-    },
-    {
-      key    : '2',
-      name   : 'Jim Green',
-      age    : 42,
-      address: 'London No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    },
-    {
-      key    : '3',
-      name   : 'Joe Black',
-      age    : 32,
-      address: 'Sidney No. 1 Lake Park'
-    }
-  ];
-  params: {};
+  params: any = {};
+  orgList: Array<OrgInterface>;                  // table data
+  total: number;                                // table 总数
+  loading: boolean;                             // table loading
 
   constructor(
     private service: OrgService
@@ -101,17 +25,32 @@ export class OrgComponent implements OnInit {
       pageFrom: 1,
       pageSize: 5
     };
+    this.orgList = [];
+    this.loading = false;
     this.getOrgList();
   }
 
-  getOrgList(): void {
-    this.service.getOrgList(this.params).subscribe(resp => {
-      const res: any = resp;
+  /**
+   * 获取机构数据
+   * @params: orgname
+   * */
+  getOrgList() {
+    this.loading = true;
+    this.service.getOrgList(this.params).subscribe(res => {
+      this.loading = false;
       if (res.code === 10200) {
-        console.log(res);
+        this.orgList = res.data;
+        this.total = res.total;
+      } else {
+        this.orgList = [];
+        this.total = 0;
       }
     });
   }
+  
+  /**
+   * 删除机构（其实就是修改机构接口）
+   * */
   
   
 }

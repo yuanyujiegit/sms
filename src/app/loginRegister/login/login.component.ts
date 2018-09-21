@@ -140,17 +140,19 @@ export class LoginComponent implements OnInit {
     this.timePassed += this.speed;
   }
 
-  submitForm(): void {
+  submitForm() {
     for (const i in this.validateForm.controls) {
       if (this.validateForm.controls) {
         this.validateForm.controls[i].markAsDirty();
         this.validateForm.controls[i].updateValueAndValidity();
       }
     }
+    if (!this.validateForm.valid) {
+      return false;
+    }
     this.validateForm.value.password = this.base.encode(this.validateForm.value.password);
     this.localStorageService.clearAll();
-    this.service.login(this.validateForm.value).subscribe((resp) => {
-      const res: any = resp;
+    this.service.login(this.validateForm.value).subscribe(res => {
       if (res.code === 10200) {
         this.localStorageService.set('accessToken', res.accessToken);
         this.localStorageService.set('rootUserName', res.data[0].username);
@@ -158,7 +160,6 @@ export class LoginComponent implements OnInit {
         this.localStorageService.set('rootRoleName', res.data[0].rolename);
         this.router.navigateByUrl('container');
       }
-      }
-    );
+    });
   }
 }
